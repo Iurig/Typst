@@ -2,3 +2,4 @@
 *.png
 !exercises/*/solution.png
 scratch/
+!lessons/img/*.png

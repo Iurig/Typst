@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 3 · Math and your own macros</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body><main>
+<h1>Math and your own macros</h1>
+<p class="subtitle">Lesson 3 · one rule about names, and your thesis preamble's <code>\newcommand</code>s rewritten as one importable file</p>
+<div class="meta"><span>~30 minutes</span><span>Builds on <a href="0002-set-and-show-rules.html">Lesson 2</a></span><span>Reference: <a href="../reference/0003-math-and-macros.html">Math names &amp; macros</a></span></div>
+
+<p>Your thesis preamble has a block of math macros: <code>\Zb</code>, <code>\egz</code>, <code>\carac</code>, <code>\defeq</code>, <code>\inner</code>, <code>\norm</code>, plus a <code>\charfusion</code> hack for <code>\cupdot</code>. You will turn that block into a file called <code>macros.typ</code> and import it with a single line in any document. You need one rule about names and one keyword.</p>
+
+<h2>The rule: one letter is a letter, two letters are a name</h2>
+<p>From the math reference: "In math, single letters are always displayed as is. Multiple letters, however, are interpreted as variables and functions" (<a href="https://typst.app/docs/reference/math/#variables">math reference, Variables</a>). Everything below follows from that sentence.</p>
+<ul>
+<li><code>$x y$</code> is two italic letters. <code>$xy$</code> is a lookup of a variable named <code>xy</code>, and fails with <code>unknown variable: xy</code>. You hit this in Lesson 1.</li>
+<li><code>ZZ</code>, <code>sum</code>, <code>product</code>, <code>union</code> are names that Typst defines for you. So are your own: once you write <code>#let Zb = $ZZ$</code>, the formula <code>$Zb_p$</code> works.</li>
+<li>Quotes give literal upright text: <code>$"char"$</code>. That is <code>\text{char}</code>, not an operator.</li>
+<li>To use a <em>one-letter</em> variable, you need the hash: <code>$#v$</code>. Without it, <code>v</code> is just the letter v.</li>
+</ul>
+
+<h2>Operators: <code>\DeclareMathOperator</code> is <code>math.op</code></h2>
+<p>Quoted text gets text spacing, not operator spacing. <code>op</code> makes an upright operator that spaces like <code>\sin</code> (<a href="https://typst.app/docs/reference/math/op/">op reference</a>):</p>
+<pre><code>#let egz = math.op("EGZ")
+#let carac = math.op("char")
+// \operatorname*: limits under it in display math
+#let argmax = math.op("arg max", limits: true)</code></pre>
+<figure><img src="img/0003-traps.png" alt="Rendered: quoted char F has a wide gap, op char F has operator spacing; bad(x) prints the letter v, good(x) prints x"><figcaption>Left pair: text spacing vs operator spacing. Right pair: the hash trap from the next section.</figcaption></figure>
+<p>Typst already defines <code>gcd lcm mod id ker det dim max min lim sup inf log exp</code> and the trig functions (<a href="https://typst.app/docs/reference/math/op/">full list</a>), so you only declare your own, such as <code>EGZ</code>.</p>
+
+<h2><code>#let</code> is <code>\newcommand</code></h2>
+<p>A <code>let</code> binding names a value, and with parameters it defines a function (<a href="https://typst.app/docs/reference/scripting/#bindings">scripting reference, Bindings</a>). Math macros are functions whose body is a formula:</p>
+<pre><code>// no arguments: a constant
+#let Zb = $ZZ$
+#let cupdot = $union.dot$
+
+// arguments: note the # before each one
+#let inner(a, b) = $lr(chevron.l #a, #b chevron.r)$
+#let pmod(n) = $quad (mod #n)$
+
+// an optional argument is a named one with a default
+#let equals(by: none) = $limits(=)^#by$</code></pre>
+<p>Call them in math exactly like built-ins: <code>$inner(u, v)$</code>, <code>$a equiv b pmod(p)$</code>, <code>$a equals(by: "def") b$</code>. Commas separate arguments (<a href="https://typst.app/docs/reference/math/#function-calls">function calls in math</a>).</p>
+<div class="callout warn"><p><strong>The hash trap.</strong> In <code>#let inner(a, b) = $lr(chevron.l a, b chevron.r)$</code>, the body shows the letters a and b whatever you pass, and there is no error. Parameters are one-letter variables, and one letter is a letter. Write <code>#a</code>. (Multi-letter parameter names work without the hash, but then you have two rules to remember instead of one.)</p></div>
+<p class="aside">LaTeX's <code>\langle</code> is <code>chevron.l</code>. Older tutorials write <code>angle.l</code>, which is an error in your Typst 0.15.1 (<code>unknown symbol modifier</code>).</p>
+
+<h2>Check before you define</h2>
+<p>Half of the thesis block already exists in Typst. Before you translate a macro, look for it in the <a href="https://typst.app/docs/reference/symbols/sym/">symbol list</a> and the <a href="https://typst.app/docs/reference/math/">math functions</a>:</p>
+<table><tr><th>Thesis</th><th>Typst</th><th>Note</th></tr>
+<tr><td class="latex"><code>\norm{x}</code></td><td class="typst"><code>norm(x)</code></td><td>built in, like <code>abs</code>, <code>floor</code>, <code>ceil</code></td></tr>
+<tr><td class="latex"><code>\defeq</code></td><td class="typst"><code>:=</code></td><td>a shorthand for the symbol <code>colon.eq</code> (≔)</td></tr>
+<tr><td class="latex"><code>\cupdot</code></td><td class="typst"><code>union.dot</code></td><td>the 10-line <code>\charfusion</code> hack is one symbol: ⊍</td></tr>
+<tr><td class="latex"><code>\Re</code></td><td class="typst"><code>Re</code> = ℜ</td><td>Typst's <code>Re</code> is the fraktur symbol. Your upright Re needs <code>#let Re = math.op("Re")</code>, which shadows it.</td></tr>
+</table>
+
+<h2>One file, every document</h2>
+<p>Put the definitions in <code>macros.typ</code>. Any document loads all of them with <code>#import "macros.typ": *</code>, or only some with <code>#import "macros.typ": Zb, egz</code> (<a href="https://typst.app/docs/reference/scripting/#modules">scripting reference, Modules</a>). The path is relative to the importing file, with one limit: by default Typst will not read above the compiled file's folder (<code>path would escape the project root</code>). To share one macro file across folders, compile with <code>--root .</code> and import <code>"/macros.typ"</code>; a leading slash means the project root. Lesson 7 turns this into a proper notes template.</p>
+
+<h2>Check yourself</h2>
+<p>From memory. The last two questions revisit Lessons 1 and 2. <span class="quiz-score"></span></p>
+
+<div class="quiz"><p class="q">With no definitions, what does <code>$EGZ(G)$</code> produce?</p><ul>
+<li><button data-correct>Error: unknown variable EGZ</button></li><li><button>Three italic letters EGZ</button></li><li><button>Upright text EGZ, spaced</button></li><li><button>An upright operator EGZ</button></li></ul>
+<p class="explain">Multiple letters are a name. There is no variable named EGZ until you define one.</p></div>
+
+<div class="quiz"><p class="q">After <code>#let n2(v) = $||v||$</code>, what does <code>$n2(x)$</code> show?</p><ul>
+<li><button data-correct>‖v‖, ignoring the argument</button></li><li><button>‖x‖, using the argument</button></li><li><button>Error: v is unknown</button></li><li><button>Error: n2 takes content</button></li></ul>
+<p class="explain">One letter is a letter, even if a parameter has that name. The body needs <code>#v</code>. No error is raised, so this bug is silent.</p></div>
+
+<div class="quiz"><p class="q">The Typst for <code>\DeclareMathOperator{\carac}{char}</code>:</p><ul>
+<li><button data-correct><code>#let carac = math.op("char")</code></button></li><li><button><code>#let carac = $"char"$</code></button></li><li><button><code>#let carac = $upright(char)$</code></button></li><li><button><code>#let carac = text("char")</code></button></li></ul>
+<p class="explain">Quotes give text spacing. <code>upright(char)</code> fails because <code>char</code> is an unknown name. <code>op</code> gives operator spacing.</p></div>
+
+<div class="quiz"><p class="q">Which thesis macro needs no Typst definition at all?</p><ul>
+<li><button data-correct><code>\norm</code></button></li><li><button><code>\egz</code></button></li><li><button><code>\inner</code></button></li><li><button><code>\carac</code></button></li></ul>
+<p class="explain"><code>norm(x)</code> is a built-in math function, like <code>abs(x)</code>.</p></div>
+
+<div class="quiz"><p class="q"><code>notes/a.typ</code> contains <code>#import "../macros.typ": *</code>. What does <code>typst compile notes/a.typ</code> do?</p><ul>
+<li><button data-correct>Error: path escapes root</button></li><li><button>Imports every macro defined</button></li><li><button>Imports only the functions</button></li><li><button>Error: missing module name</button></li></ul>
+<p class="explain">The default root is the compiled file's folder. Use <code>--root .</code> and import <code>"/macros.typ"</code>.</p></div>
+
+<div class="quiz"><p class="q">With <code>#set heading(numbering: "1")</code>, how is subsection 1.1 numbered?</p><ul>
+<li><button data-correct><code>11</code></button></li><li><button><code>1.1</code></button></li><li><button><code>1</code></button></li><li><button><code>1a</code></button></li></ul>
+<p class="explain">A pattern is a template with one symbol per level, separators included. A one-symbol pattern repeats with no separator. Write <code>"1.1"</code>.</p></div>
+
+<div class="quiz"><p class="q">Which name gives the large ∏ with limits above and below?</p><ul>
+<li><button data-correct><code>product</code></button></li><li><button><code>Pi</code></button></li><li><button><code>prod</code></button></li><li><button><code>Pi.big</code></button></li></ul>
+<p class="explain"><code>Pi</code> is the Greek letter, <code>prod</code> is an unknown name, and <code>Pi.big</code> is not a valid modifier. Large operators are words: <code>sum</code>, <code>product</code>, <code>integral</code>.</p></div>
+
+<h2>Practice: your preamble as <code>macros.typ</code></h2>
+<p><a href="../exercises/0003/starter.typ">exercises/0003/starter.typ</a> is a thesis passage written with your macros. Don't edit it. Your work goes in <a href="../exercises/0003/macros.typ">exercises/0003/macros.typ</a>, which lists each preamble line as a comment. <code>\Zb</code> is done as an example.</p>
+<ol class="steps">
+<li>Open the starter in Tinymist preview, or run <code>typst watch exercises/0003/starter.typ</code>. It fails with <code>unknown variable: egz</code>. Each error names the next missing macro, so the compiler is your checklist.</li>
+<li>Define the macros one at a time and save after each one. For <code>inner</code>, write it <em>without</em> hashes first, look at the last line, then fix it.</li>
+<li>When the starter compiles, look at the last line before you define <code>Re</code>. It renders, but wrongly. Then shadow it.</li>
+<li>One commented line in <code>macros.typ</code> needs no code. Leave a comment saying why.</li>
+<li>Compare with the solution below. Check the spacing around ≡ … (mod p) and around EGZ.</li>
+</ol>
+<details><summary>Show the rendered solution</summary>
+<figure><img src="../exercises/0003/solution.png" alt="Rendered solution of exercise 0003: definition of EGZ, the EGZ theorem, char, pmod, cupdot, Lucas equation, inner product inequality"><figcaption>Source: <a href="../exercises/0003/solution-macros.typ">solution-macros.typ</a>, imported by <a href="../exercises/0003/solution.typ">solution.typ</a>.</figcaption></figure>
+</details>
+
+<h2>Read next</h2>
+<p>Primary source: the <a href="https://typst.app/docs/reference/math/"><strong>Math</strong> overview page of the official reference</a>. Read the sections Variables, Symbols, Function calls and Alignment; it takes about ten minutes, and Alignment (<code>&amp;</code> and <code>\</code>, the <code>align*</code> replacement) is the next thing your thesis needs. Keep the <a href="https://typst.app/docs/reference/symbols/sym/">symbol list</a> open while you write. When you migrate many formulas, <a href="https://qwinsi.github.io/tex2typst-webapp/">tex2typst</a> converts them, but check its output against the hash trap above.</p>
+
+<div class="callout"><p><strong>Ask your teacher.</strong> If something is unclear, or you want a specific thesis formula translated, ask in the chat. Run <code>/teach me Typst</code> to continue to Lesson 4, theorem environments and proofs.</p></div>
+
+<nav class="course"><a href="0002-set-and-show-rules.html">← Lesson 2</a><a href="../reference/0003-math-and-macros.html">Math &amp; macros reference →</a></nav>
+</main><script src="../assets/quiz.js"></script></body></html>

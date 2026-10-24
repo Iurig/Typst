@@ -1,0 +1,26 @@
+// Solution for exercise 0003: the starter, importing the solution macros.
+#import "solution-macros.typ": *
+
+#set page(width: 16cm, height: auto, margin: 1.5cm)
+#set text(font: "New Computer Modern", size: 11pt)
+#set par(justify: true)
+
+*Definition.* For a finite ring $R$ and integers $t, m >= 1$,
+let $egz(t, R, m)$ be the least $l$ such that every sequence
+$S$ of length $l$ over $R$ has a subsequence $S'$ of length
+$t$ with $e_m (S') = 0$. In the group case,
+$ D(G) defeq min_(t >= 1) egz(t, G, 1). $
+
+*Theorem (Erdős–Ginzburg–Ziv).* For every $n >= 1$,
+$ egz(n, Zb_n, 1) = 2n - 1. $
+
+For a prime $p$ we have $carac(Zb_p) = p$, and
+$a^p equiv a pmod(p)$ for every $a in Zb$. Split a sequence
+over $Zb_2$ as $S = S_0 cupdot S_1$ by value. Then
+$ e_m (S) = binom(|S_1|, m)
+  equals(by: "Lucas") product_(i=0)^k binom(s_i, m_i)
+  pmod(2). $
+
+Finally, in an inner-product space,
+$Re inner(u, v) <= norm(u) norm(v)$ and
+$norm(u)^2 = inner(u, u)$.

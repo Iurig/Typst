@@ -16,6 +16,10 @@
   The core of Typst formatting. Use for: anything that replaces `\renewcommand`, `\setlength`, or a package option.
 - [Official: Bibliography](https://typst.app/docs/reference/model/bibliography/) and [cite](https://typst.app/docs/reference/model/cite/)
   BibTeX `.bib` files work directly; 80+ built-in CSL styles. Use for: replacing natbib/biblatex.
+- [Official: op (math operators)](https://typst.app/docs/reference/math/op/)
+  `\DeclareMathOperator` equivalent and the list of predefined operators. Use for: checking whether an operator already exists.
+- [Official: Scripting](https://typst.app/docs/reference/scripting/)
+  `let` bindings, functions, modules and `import`. Use for: macros and shared macro files.
 - [Typst Universe](https://typst.app/universe/)
   Official package and template index. Use for: theorem packages, CeTZ (TikZ replacement), slide packages, thesis templates.
 - [tex2typst web app](https://qwinsi.github.io/tex2typst-webapp/)

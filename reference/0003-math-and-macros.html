@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Math names & macros</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body><main>
+<h1>Math names &amp; macros</h1>
+<p class="subtitle">Reference 0003 · how Typst reads names in math, and <code>\newcommand</code> / <code>\DeclareMathOperator</code> as <code>#let</code></p>
+<div class="meta"><span>Sources: <a href="https://typst.app/docs/reference/math/">Math reference</a>, <a href="https://typst.app/docs/reference/math/op/">op</a>, <a href="https://typst.app/docs/reference/scripting/">Scripting</a></span><span>Verified with Typst 0.15.1</span></div>
+
+<h2>How a name in math is read</h2>
+<table><tr><th>You write</th><th>Typst reads</th><th>Result</th></tr>
+<tr><td class="typst"><code>$x y$</code></td><td>two single letters</td><td>italic <i>x y</i></td></tr>
+<tr><td class="typst"><code>$xy$</code></td><td>a variable named <code>xy</code></td><td>error <code>unknown variable: xy</code> unless defined</td></tr>
+<tr><td class="typst"><code>$ZZ$</code>, <code>$sum$</code></td><td>a built-in name</td><td>ℤ, ∑</td></tr>
+<tr><td class="typst"><code>$"char"$</code></td><td>literal text</td><td>upright, <em>text</em> spacing (<code>\text</code>)</td></tr>
+<tr><td class="typst"><code>$#v$</code></td><td>the variable <code>v</code></td><td>its value; the hash is needed because <code>v</code> alone is a letter</td></tr>
+<tr><td class="typst"><code>$f(a, b)$</code></td><td>a call when <code>f</code> is a function name</td><td>commas separate arguments; <code>\,</code> is a literal comma</td></tr>
+</table>
+
+<h2>Macro patterns</h2>
+<table><tr><th>LaTeX</th><th>Typst</th></tr>
+<tr><td class="latex"><code>\newcommand{\Zb}{\mathbb{Z}}</code></td><td class="typst"><code>#let Zb = $ZZ$</code></td></tr>
+<tr><td class="latex"><code>\DeclareMathOperator{\egz}{EGZ}</code></td><td class="typst"><code>#let egz = math.op("EGZ")</code></td></tr>
+<tr><td class="latex"><code>\DeclareMathOperator*{\argmax}{arg\,max}</code></td><td class="typst"><code>#let argmax = math.op("arg max", limits: true)</code></td></tr>
+<tr><td class="latex"><code>\newcommand\inner[2]{\langle #1, #2 \rangle}</code></td><td class="typst"><code>#let inner(a, b) = $lr(chevron.l #a, #b chevron.r)$</code></td></tr>
+<tr><td class="latex"><code>\pmod{p}</code></td><td class="typst"><code>#let pmod(n) = $quad (mod #n)$</code></td></tr>
+<tr><td class="latex"><code>\newcommand{\equals}[1][]{\stackrel{#1}{=}}</code></td><td class="typst"><code>#let equals(by: none) = $limits(=)^#by$</code><br>call: <code>equals(by: "def")</code></td></tr>
+</table>
+<div class="callout warn"><p>Inside a <code>$…$</code> body, every one-letter parameter needs <code>#</code>. Without it the letter is printed and no error is raised.</p></div>
+
+<h2>Already built in (don't define)</h2>
+<table><tr><th>LaTeX / thesis</th><th>Typst</th></tr>
+<tr><td class="latex"><code>\norm{x}</code>, <code>\abs{x}</code></td><td class="typst"><code>norm(x)</code>, <code>abs(x)</code>, <code>floor</code>, <code>ceil</code></td></tr>
+<tr><td class="latex"><code>\coloneqq</code>, <code>\defeq</code></td><td class="typst"><code>:=</code> (symbol <code>colon.eq</code>)</td></tr>
+<tr><td class="latex"><code>\cupdot</code>, <code>\bigcupdot</code></td><td class="typst"><code>union.dot</code>, <code>union.dot.big</code></td></tr>
+<tr><td class="latex"><code>\langle \rangle</code></td><td class="typst"><code>chevron.l chevron.r</code> (not <code>angle.l</code>)</td></tr>
+<tr><td class="latex"><code>\binom{m}{n}</code></td><td class="typst"><code>binom(m, n)</code></td></tr>
+<tr><td class="latex"><code>\prod</code>, <code>\sum</code>, <code>\int</code></td><td class="typst"><code>product</code>, <code>sum</code>, <code>integral</code> (<code>Pi</code> is the letter)</td></tr>
+<tr><td>predefined operators</td><td class="typst"><code>arccos arcsin arctan arg cos cosh cot coth csc csch ctg deg det dim exp gcd lcm hom id im inf ker lg lim liminf limsup ln log max min mod Pr sec sech sin sinc sinh sup tan tanh tg tr</code></td></tr>
+</table>
+<p class="aside">Name clash: Typst's <code>Re</code> / <code>Im</code> are ℜ / ℑ. For the upright operators, define <code>#let Re = math.op("Re")</code>, which shadows the built-in from that line on.</p>
+
+<h2>Sharing macros between files</h2>
+<table><tr><th>Goal</th><th>Typst</th></tr>
+<tr><td>load everything</td><td class="typst"><code>#import "macros.typ": *</code></td></tr>
+<tr><td>load some names</td><td class="typst"><code>#import "macros.typ": Zb, egz</code></td></tr>
+<tr><td>a file above the current folder</td><td class="typst"><code>typst compile --root . notes/a.typ</code> with <code>#import "/macros.typ": *</code></td></tr>
+</table>
+<p>Relative paths resolve from the importing file. Without <code>--root</code>, the root is the compiled file's folder, and <code>"../x.typ"</code> fails with <code>path would escape the project root</code>.</p>
+
+<footer>Part of the Typst course workspace. Lessons: <a href="../lessons/0001-three-modes.html">1</a> · <a href="../lessons/0002-set-and-show-rules.html">2</a> · <a href="../lessons/0003-math-macros.html">3</a>. See also <a href="0001-latex-to-typst-cheatsheet.html">the LaTeX → Typst cheat sheet</a> and <a href="0002-styling-rules.html">set &amp; show rules</a>.</footer>
+</main></body></html>

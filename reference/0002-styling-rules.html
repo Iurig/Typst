@@ -55,11 +55,15 @@
 <p class="aside"><code>leading</code> is the gap between lines, <code>spacing</code> the gap between paragraphs. LaTeX uses the same value for both when <code>\parskip</code> is zero, hence 0.55em twice. Typst's defaults (0.65em leading, 1.2em spacing) are the "web" look.</p>
 
 <h2>Numbering patterns</h2>
+<p>A pattern is read as <strong>counting symbols</strong> (<code>1 a A i I</code> …), each with the text in front of it as its <strong>prefix</strong>. Everything after the last counting symbol is the <strong>suffix</strong>. One symbol is used per level. If there are more levels than symbols, "the last counting symbol with its prefix is repeated" (<a href="https://typst.app/docs/reference/model/numbering/">numbering reference</a>). So the dot in <code>"1.1"</code> is the prefix that gets repeated, and <code>"1"</code> has an empty prefix: section 1.1.2 prints as <strong>112</strong>.</p>
 <table><tr><th>Pattern</th><th>Output</th></tr>
-<tr><td class="typst"><code>"1.1"</code></td><td>1, 1.1, 1.1.1</td></tr>
+<tr><td class="typst"><code>"1"</code></td><td>1, 11, 112 (no separator to repeat)</td></tr>
+<tr><td class="typst"><code>"1.1"</code></td><td>1, 1.1, 1.1.2</td></tr>
+<tr><td class="typst"><code>"1.a"</code></td><td>1, 1.b, 1.b.c (last symbol repeats)</td></tr>
+<tr><td class="typst"><code>"I.1"</code></td><td>II, II.3</td></tr>
 <tr><td class="typst"><code>"1.1."</code></td><td>1., 1.1.</td></tr>
 <tr><td class="typst"><code>"(1)"</code></td><td>(1), (2)</td></tr>
 <tr><td class="typst"><code>"I."</code> / <code>"a)"</code> / <code>"①"</code></td><td>Roman, letter, circled</td></tr>
 </table>
-<footer>Part of the Typst course workspace. Lessons: <a href="../lessons/0001-three-modes.html">1</a> · <a href="../lessons/0002-set-and-show-rules.html">2</a>. See also <a href="0001-latex-to-typst-cheatsheet.html">the LaTeX → Typst cheat sheet</a>.</footer>
+<footer>Part of the Typst course workspace. Lessons: <a href="../lessons/0001-three-modes.html">1</a> · <a href="../lessons/0002-set-and-show-rules.html">2</a> · <a href="../lessons/0003-math-macros.html">3</a>. See also <a href="0001-latex-to-typst-cheatsheet.html">the LaTeX → Typst cheat sheet</a>.</footer>
 </main></body></html>

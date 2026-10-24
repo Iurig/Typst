@@ -10,5 +10,5 @@ Completed exercise 0001 unaided (translated a thesis passage): correct use of ma
 - Did not realise heading numbering is opt-in (`#set heading(numbering: ...)`); equation numbering was understood.
 
 ## Implications
-- Lesson 2 (set rules, show rules, LaTeX look) can start immediately; he has already placed a set rule mid-document, so scoping of set rules is a live question to answer.
+- Lesson 2 (set rules, show rules, LaTeX look) can start immediately; they have already placed a set rule mid-document, so scoping of set rules is a live question to answer.
 - Keep the operator-vs-letter distinction in the math lesson's retrieval practice.
