@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 1 · The three modes</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body><main>
+<h1>The three modes</h1>
+<p class="subtitle">Lesson 1 · one mental model that replaces <code>\begin{…}</code>, <code>\command{…}</code> and <code>$…$</code></p>
+<div class="meta"><span>~25 minutes</span><span>Mission: <a href="../MISSION.md">never reach for LaTeX again</a></span><span>Reference: <a href="../reference/0001-latex-to-typst-cheatsheet.html">LaTeX → Typst cheat sheet</a></span></div>
+
+<p>By the end of this lesson you will have translated a passage of your own thesis (the Cauchy-Davenport lemma and Lucas's theorem) into Typst, compiled it locally, and seen it render in Computer Modern. Everything else in this course builds on the one idea below.</p>
+
+<h2>The idea</h2>
+<p>LaTeX has one mode with commands sprinkled in. Typst has <strong>three modes</strong>, and the whole syntax is just the rules for switching between them (<a href="https://typst.app/docs/reference/syntax/">Syntax reference</a>).</p>
+<div class="modes">
+  <div><b>Markup</b><small>where you start; prose</small><span class="key">= * _ - + &lt;label&gt; @ref</span></div>
+  <div><b>Code</b><small>functions, variables, styling</small><span class="key">#…</span></div>
+  <div><b>Math</b><small>formulas</small><span class="key">$…$</span></div>
+</div>
+<ul>
+  <li><strong>Markup → Code:</strong> a hash. <code>#(1+2)</code>, <code>#strong[bold]</code>, <code>#set text(12pt)</code>. The hash is the Typst backslash, but it introduces an <em>expression</em>, not a macro.</li>
+  <li><strong>Code → Markup:</strong> square brackets. <code>[…]</code> is a <em>content block</em>: markup handed to code as a value. <code>#strong[hi]</code> reads "call <code>strong</code> with the content <em>hi</em>". This is what replaces <code>\textbf{…}</code>'s braces.</li>
+  <li><strong>Anything → Math:</strong> dollars. <code>$x^2$</code> inline; put spaces inside, <code>$ x^2 $</code>, and it becomes a display equation. No <code>\[ \]</code>, no <code>equation</code> environment.</li>
+  <li><strong>Inside math</strong>, functions need no hash: <code>$sqrt(x)$</code>, <code>$binom(m, n)$</code>, <code>$cases(…)$</code>. Grouping uses parentheses: <code>$sum_(k=1)^n$</code>.</li>
+</ul>
+
+<div class="compare">
+  <div><h4>LaTeX</h4><pre><code>\section{Setup}
+Let $p$ be \emph{prime}.
+\begin{itemize}
+  \item $|A+B| \geq \min(p, |A|+|B|-1)$
+\end{itemize}
+\[ \binom{m}{n} \equiv \prod_{i=0}^k
+   \binom{m_i}{n_i} \pmod p \]</code></pre></div>
+  <div><h4>Typst</h4><pre><code>= Setup
+Let $p$ be _prime_.
+
+- $|A + B| >= min(p, |A| + |B| - 1)$
+
+$ binom(m, n) equiv product_(i=0)^k
+  binom(m_i, n_i) quad (mod p) $</code></pre></div>
+</div>
+
+<h2>Three traps for LaTeX hands</h2>
+<p>These are the errors you will actually hit in the exercise. All three were verified against Typst 0.15.1.</p>
+<div class="callout warn"><p><strong>1. Multi-letter words in math are variables.</strong> <code>$speed$</code> fails with <em>unknown variable: speed</em>. Typst assumes letters run together form a name, like <code>pi</code> or <code>ZZ</code>. Write prose as a string, <code>$a "is even"$</code>, and spaced letters, <code>$s p e e d$</code>, if you really mean a product. This replaces <code>\text{…}</code> (<a href="https://typst.app/docs/guides/guide-for-latex-users/#math">guide</a>).</p></div>
+<div class="callout warn"><p><strong>2. You can only reference numbered things.</strong> <code>@gauss</code> to an unnumbered equation is a compile error, with a hint telling you to add <code>#set math.equation(numbering: "(1)")</code>. Same for headings: <code>#set heading(numbering: "1.1")</code>. Think <code>equation*</code> versus <code>equation</code>, but enforced.</p></div>
+<div class="callout warn"><p><strong>3. Labels come after, references are <code>@</code>.</strong> <code>$ … $ &lt;lucas&gt;</code> labels the equation; <code>@lucas</code> renders "Equation 1" automatically, so it already does cleveref's job. The same <code>@key</code> syntax cites a bibliography entry.</p></div>
+
+<p class="aside">The <code>#set</code> lines above are <em>set rules</em>: they change a function's default arguments for the rest of the document. They are the subject of Lesson 2; for now just copy them.</p>
+
+<h2>Check yourself</h2>
+<p>Answer from memory before scrolling back up. <span class="quiz-score"></span></p>
+
+<div class="quiz"><p class="q">A fresh <code>.typ</code> file starts in which mode?</p><ul>
+<li><button data-correct>Markup mode</button></li><li><button>Code mode</button></li><li><button>Math mode</button></li><li><button>Text mode</button></li></ul>
+<p class="explain">Markup is the default. You only leave it with <code>#</code> or <code>$</code>.</p></div>
+
+<div class="quiz"><p class="q">What does <code>#</code> do in markup?</p><ul>
+<li><button data-correct>Starts a code expression</button></li><li><button>Starts a heading line</button></li><li><button>Starts a line comment</button></li><li><button>Starts a math formula</button></li></ul>
+<p class="explain">The hash enters code mode for one expression: a function call, a variable, a <code>set</code> rule. Headings are <code>=</code>, comments <code>//</code>, math <code>$</code>.</p></div>
+
+<div class="quiz"><p class="q">What happens when you compile <code>$speed = 3$</code>?</p><ul>
+<li><button data-correct>Error: unknown variable speed</button></li><li><button>Renders italic word speed</button></li><li><button>Renders upright word speed</button></li><li><button>Renders product s·p·e·e·d</button></li></ul>
+<p class="explain">Multi-letter runs are looked up as names. Quote it, <code>"speed"</code>, for text, or space the letters for a product.</p></div>
+
+<div class="quiz"><p class="q">Which is the Typst equivalent of <code>$a \text{ is even}$</code>?</p><ul>
+<li><button data-correct><code>$a "is even"$</code></button></li><li><button><code>$a [is even]$</code></button></li><li><button><code>$a #text(is even)$</code></button></li><li><button><code>$a \text(is even)$</code></button></li></ul>
+<p class="explain">A string literal inside math is typeset as upright text with normal spacing.</p></div>
+
+<div class="quiz"><p class="q">You write <code>@thm</code> pointing at an unnumbered display equation. Result?</p><ul>
+<li><button data-correct>Compile error, add numbering</button></li><li><button>Renders as Equation 1</button></li><li><button>Renders as empty string</button></li><li><button>Renders the raw label</button></li></ul>
+<p class="explain">Typst refuses to reference something that has no number to show. Enable it with <code>#set math.equation(numbering: "(1)")</code>.</p></div>
+
+<div class="quiz"><p class="q">In <code>#let twice(x) = [#x #x]</code>, what are the square brackets?</p><ul>
+<li><button data-correct>A content block, markup</button></li><li><button>An array of two</button></li><li><button>A string of markup</button></li><li><button>A math mode block</button></li></ul>
+<p class="explain">Brackets switch from code back to markup. Inside them you need <code>#</code> again to read the variable <code>x</code>.</p></div>
+
+<h2>Practice: translate your own thesis</h2>
+<p>The file <a href="../exercises/0001/task.tex">exercises/0001/task.tex</a> is a trimmed excerpt of <code>prerequisites.tex</code> from your thesis. Translate it into Typst with the compiler watching you.</p>
+<ol class="steps">
+  <li>Open a terminal in <code>exercises/0001/</code> and run <code>typst watch starter.typ starter.pdf</code>. Open <code>starter.pdf</code> in a viewer that reloads on change.</li>
+  <li>Translate <code>task.tex</code> into <a href="../exercises/0001/starter.typ">starter.typ</a>, top to bottom. Render the theorem as a bold "Theorem 1.1 (Cauchy-Davenport Lemma)." for now; real theorem environments are a later lesson.</li>
+  <li>Every save recompiles in milliseconds. Read each error: Typst's messages usually contain the fix.</li>
+  <li>Label the Lucas equation and reference it with <code>@</code> in the last sentence. End the proof with <code>#h(1fr) $qed$</code>.</li>
+  <li>Compare with the solution. Differences in symbol choice are fine; differences in <em>mode switching</em> are what to study.</li>
+</ol>
+<details><summary>Show the rendered solution</summary>
+<figure><img src="../exercises/0001/solution.png" alt="Rendered solution of exercise 0001"><figcaption>Compiled from <a href="../exercises/0001/solution.typ">solution.typ</a> with Typst 0.15.1, font New Computer Modern.</figcaption></figure>
+</details>
+<details><summary>Hints, if stuck for more than five minutes</summary>
+<ul>
+<li><code>\Zb_p</code> → <code>ZZ_p</code>. <code>\cap</code> → <code>inter</code>. <code>\cup</code> → <code>union</code>. <code>\geq</code> → <code>&gt;=</code>.</li>
+<li><code>\{b\}</code> → <code>{b}</code>. Braces are ordinary characters in Typst math.</li>
+<li><code>\pmod{p}</code> → <code>quad (mod p)</code>.</li>
+<li>Primes: <code>A'</code> works as is.</li>
+<li>Full symbol names: <a href="https://typst.app/docs/reference/symbols/sym/">typst.app/docs/reference/symbols/sym</a>.</li>
+</ul></details>
+
+<h2>Read next</h2>
+<p>Primary source for this lesson: the official <a href="https://typst.app/docs/guides/guide-for-latex-users/"><strong>Guide for LaTeX users</strong></a>. Read the sections "Headings, emphasis, and other markup", "Commands" and "Math". It is short and written for exactly your situation.</p>
+
+<div class="callout"><p><strong>Ask your teacher.</strong> Anything unclear, an error you can't decode, or a LaTeX construct you want mapped: ask in the chat. Run <code>/teach me Typst</code> again to continue to Lesson 2, set rules and the LaTeX look.</p></div>
+
+<nav class="course"><span>Lesson 1 of the Typst course</span><a href="../reference/0001-latex-to-typst-cheatsheet.html">Cheat sheet →</a></nav>
+</main><script src="../assets/quiz.js"></script></body></html>

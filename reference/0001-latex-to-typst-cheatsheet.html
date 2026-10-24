@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LaTeX → Typst cheat sheet</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body><main>
+<h1>LaTeX → Typst cheat sheet</h1>
+<p class="subtitle">Reference 0001 · the syntax a LaTeX author needs on day one</p>
+<div class="meta"><span>Sources: <a href="https://typst.app/docs/reference/syntax/">Syntax reference</a>, <a href="https://typst.app/docs/guides/guide-for-latex-users/">Guide for LaTeX users</a></span><span>Verified with Typst 0.15.1</span></div>
+
+<h2>The three modes</h2>
+<div class="modes">
+  <div><b>Markup</b><small>default in a .typ file</small><span class="key">= * _ - + $</span></div>
+  <div><b>Code</b><small>functions, variables, set/show</small><span class="key">#…</span></div>
+  <div><b>Math</b><small>inline or display</small><span class="key">$…$</span></div>
+</div>
+<table><tr><th>From</th><th>To</th><th>How</th></tr>
+<tr><td>markup</td><td>code</td><td class="typst"><code>#expr</code> — e.g. <code>#(1+2)</code>, <code>#strong[x]</code>, <code>#set text(12pt)</code></td></tr>
+<tr><td>code</td><td>markup</td><td class="typst"><code>[…]</code> — a <em>content block</em>: <code>#let twice(x) = [#x #x]</code></td></tr>
+<tr><td>any</td><td>math</td><td class="typst"><code>$x^2$</code> inline; <code>$ x^2 $</code> (spaces inside) display</td></tr>
+<tr><td>math</td><td>code</td><td class="typst"><code>$#x$</code>; but math functions need no hash: <code>$floor(x)$</code></td></tr>
+<tr><td>math</td><td>text</td><td class="typst"><code>$a "is even"$</code> — quotes, not <code>\text</code></td></tr>
+</table>
+
+<h2>Document structure</h2>
+<table><tr><th>LaTeX</th><th>Typst</th><th>Note</th></tr>
+<tr><td class="latex"><code>\section{T}</code></td><td class="typst"><code>= T</code></td><td><code>==</code>, <code>===</code> for deeper levels; numbering via <code>#set heading(numbering: "1.1")</code></td></tr>
+<tr><td class="latex"><code>\textbf{x}</code></td><td class="typst"><code>*x*</code></td><td>function form: <code>#strong[x]</code></td></tr>
+<tr><td class="latex"><code>\emph{x}</code></td><td class="typst"><code>_x_</code></td><td>function form: <code>#emph[x]</code></td></tr>
+<tr><td class="latex"><code>\texttt{x}</code>, <code>\verb|x|</code></td><td class="typst"><code>`x`</code></td><td>raw text; <code>```lang … ```</code> for blocks</td></tr>
+<tr><td class="latex"><code>itemize</code></td><td class="typst"><code>- item</code></td><td>indent to nest</td></tr>
+<tr><td class="latex"><code>enumerate</code></td><td class="typst"><code>+ item</code></td><td>or <code>1. item</code> for explicit numbers</td></tr>
+<tr><td class="latex"><code>description</code></td><td class="typst"><code>/ Term: text</code></td><td></td></tr>
+<tr><td class="latex"><code>\\</code></td><td class="typst"><code>\</code> at line end</td><td>blank line = paragraph break</td></tr>
+<tr><td class="latex"><code>\label{k}</code></td><td class="typst"><code>&lt;k&gt;</code></td><td>placed <em>after</em> the element</td></tr>
+<tr><td class="latex"><code>\ref{k}</code>, <code>\cref{k}</code></td><td class="typst"><code>@k</code></td><td>auto-prefixed ("Equation 1"); target must be numbered</td></tr>
+<tr><td class="latex"><code>\cite{k}</code></td><td class="typst"><code>@k</code></td><td>same syntax; needs <code>#bibliography("f.bib")</code></td></tr>
+<tr><td class="latex"><code>% comment</code></td><td class="typst"><code>// comment</code></td><td><code>/* block */</code> too</td></tr>
+<tr><td class="latex"><code>\#  \$  \%</code></td><td class="typst"><code>\#  \$  \*  \_</code></td><td>backslash escapes markup characters; <code>%</code> is plain</td></tr>
+<tr><td class="latex"><code>\input{f}</code></td><td class="typst"><code>#include "f.typ"</code></td><td><code>#import</code> for definitions</td></tr>
+<tr><td class="latex"><code>\newcommand{\f}[1]{…}</code></td><td class="typst"><code>#let f(x) = […]</code></td><td>call as <code>#f[…]</code></td></tr>
+</table>
+
+<h2>Math</h2>
+<table><tr><th>LaTeX</th><th>Typst</th><th>Note</th></tr>
+<tr><td class="latex"><code>$x$</code></td><td class="typst"><code>$x$</code></td><td>inline</td></tr>
+<tr><td class="latex"><code>\[ … \]</code>, <code>equation</code></td><td class="typst"><code>$ … $</code></td><td>number with <code>#set math.equation(numbering: "(1)")</code></td></tr>
+<tr><td class="latex"><code>x_{ij}</code>, <code>x^{2n}</code></td><td class="typst"><code>x_(i j)</code>, <code>x^(2n)</code></td><td>parentheses group, not braces</td></tr>
+<tr><td class="latex"><code>\frac{a}{b}</code></td><td class="typst"><code>a/b</code>, <code>(a+b)/c</code></td><td>or <code>frac(a, b)</code></td></tr>
+<tr><td class="latex"><code>\sqrt{x}</code></td><td class="typst"><code>sqrt(x)</code></td><td><code>root(3, x)</code></td></tr>
+<tr><td class="latex"><code>\sum_{k=1}^n</code></td><td class="typst"><code>sum_(k=1)^n</code></td><td><code>product</code>, <code>integral</code>, <code>lim</code></td></tr>
+<tr><td class="latex"><code>\binom{m}{n}</code></td><td class="typst"><code>binom(m, n)</code></td><td></td></tr>
+<tr><td class="latex"><code>\mathbb{Z}_p</code></td><td class="typst"><code>ZZ_p</code></td><td><code>NN RR QQ CC</code>; or <code>bb(Z)</code></td></tr>
+<tr><td class="latex"><code>\mathcal{F}</code></td><td class="typst"><code>cal(F)</code></td><td><code>frak(g)</code>, <code>bold(x)</code>, <code>upright(x)</code></td></tr>
+<tr><td class="latex"><code>\geq \leq \neq</code></td><td class="typst"><code>&gt;= &lt;= !=</code></td><td>shorthands</td></tr>
+<tr><td class="latex"><code>\in \subseteq \cap \cup \emptyset</code></td><td class="typst"><code>in subset.eq inter union emptyset</code></td><td>see <a href="https://typst.app/docs/reference/symbols/sym/">symbol list</a></td></tr>
+<tr><td class="latex"><code>\pm \cdot \times \to \iff \forall</code></td><td class="typst"><code>plus.minus dot times -&gt; &lt;=&gt; forall</code></td><td></td></tr>
+<tr><td class="latex"><code>\{ x \}</code></td><td class="typst"><code>{x}</code></td><td>braces are plain in math</td></tr>
+<tr><td class="latex"><code>\pmod{p}</code></td><td class="typst"><code>quad (mod p)</code></td><td><code>mod</code> is a built-in upright operator</td></tr>
+<tr><td class="latex"><code>\text{if}</code></td><td class="typst"><code>"if"</code></td><td>multi-letter words must be quoted or they are looked up as variables</td></tr>
+<tr><td class="latex"><code>\min \cos \log</code></td><td class="typst"><code>min cos log</code></td><td>predefined; custom: <code>op("rank")</code></td></tr>
+<tr><td class="latex"><code>\begin{cases}…\end{cases}</code></td><td class="typst"><code>cases(a "if" x, b "else")</code></td><td>commas separate rows</td></tr>
+<tr><td class="latex"><code>align</code>, <code>&amp;=</code></td><td class="typst"><code>$ x &amp;= 1 \ &amp;= 2 $</code></td><td><code>&amp;</code> aligns, <code>\</code> breaks</td></tr>
+<tr><td class="latex"><code>\qed</code>, <code>\blacksquare</code></td><td class="typst"><code>$qed$</code>, <code>$square.filled$</code></td><td>push right with <code>#h(1fr)</code></td></tr>
+</table>
+
+<h2>Command line</h2>
+<pre><code>typst compile file.typ            # → file.pdf
+typst compile file.typ out.png    # → png (--ppi 144 for sharper)
+typst watch file.typ              # recompile on every save
+typst fonts                       # list fonts Typst can see
+typst eval '1 + 2'                # try an expression</code></pre>
+<footer>Part of the Typst course workspace. Back to <a href="../lessons/0001-three-modes.html">Lesson 1</a>.</footer>
+</main></body></html>

@@ -1,0 +1,23 @@
+% Excerpt from Iurig/Higher-Degree-EGZ, cap_fundamentacao/prerequisites.tex
+% Translate this into Typst. Treat \Zb as \mathbb{Z}.
+% For now, render the theorem as a bold "Theorem 1.1 (…)." label followed by the
+% statement -- real theorem environments come in a later lesson.
+\section{The Chevalley-Warning Theorem and the Cauchy-Davenport Lemma}
+We start with a \emph{simplified} version of the Cauchy-Davenport Lemma:
+\begin{theorem}[Cauchy-Davenport Lemma]\label{cauchy_davenport_lemma}
+  Let $p$ be a prime and $A$, $B$ be two nonempty subsets of $\Zb_p$, then
+  $|A+B|\geq \min(p,|A|+|B|-1)$.
+\end{theorem}
+\begin{proof}
+  We use induction in $|B|$ here, where $|A|\geq|B|$ is assumed.
+  \begin{itemize}
+    \item If $|B|=1$, we can write $B=\{b\}$, and $A+B=A+b$.
+    \item Otherwise, assume $A\cap B$ is non-empty and proper to $B$, and apply
+          the hypothesis to $A'=A\cup B$ and $B'=A\cap B$.
+  \end{itemize}
+\end{proof}
+
+\section{Lucas's Theorem}
+Let $m$ and $n$ be non-negative integers and $p$ be a prime. Then:
+$$\binom{m}{n} \equiv \prod_{i=0}^{k} \binom{m_i}{n_i} \pmod{p}.$$
+As stated in Theorem~\ref{cauchy_davenport_lemma}, the bound is sharp.
