@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Theorems & proofs</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body><main>
+<h1>Theorems &amp; proofs</h1>
+<p class="subtitle">Reference 0004 · amsthm with the <code>ctheorems</code> package</p>
+<div class="meta"><span>Sources: <a href="https://typst.app/universe/package/ctheorems">ctheorems on Universe</a>, <a href="https://github.com/sahasatvik/typst-theorems/blob/main/manual.pdf">manual (PDF)</a>, <a href="https://typst.app/docs/reference/model/numbering/">numbering</a></span><span>Verified with Typst 0.15.1, ctheorems 2.0.0</span></div>
+
+<h2>Preamble: the thesis setup</h2>
+<pre><code>#import "@preview/ctheorems:2.0.0": *
+#import thm-themes.ams: *
+// default ∎ = your \blacksquare
+// (amsthm's □: thm-rules.with(qed-symbol: $square$))
+#show: thm-rules
+
+#set heading(numbering: "1.1")
+
+// [chapter]: Theorem 1.2, not 1.1.2.
+// Shared counter: same base-level everywhere.
+#let theorem = theorem.with(base-level: 1)
+#let lemma = lemma.with(base-level: 1)
+#let proposition = proposition.with(base-level: 1)
+// \newtheorem{definition}{Definition}[chapter]
+#let definition = definition.with(
+  counter: "Definition", base-level: 1,
+)
+// \newtheorem*{theorem*}{Theorem}
+#let theorem-plain = theorem.with(numbering: none)
+// corollary [theorem] (1.2.1) is the default</code></pre>
+
+<h2>The AMS theme</h2>
+<table><tr><th>amsthm</th><th>ctheorems AMS theme</th><th>Numbered by</th></tr>
+<tr><td class="latex"><code>plain</code> (italic body)</td><td class="typst"><code>theorem lemma proposition conjecture</code></td><td>shared counter <code>"Theorem"</code></td></tr>
+<tr><td class="latex"><code>plain</code></td><td class="typst"><code>corollary</code></td><td>sub-number of the last theorem (1.4.1)</td></tr>
+<tr><td class="latex"><code>definition</code> (upright body)</td><td class="typst"><code>definition</code></td><td>shared counter <code>"Theorem"</code></td></tr>
+<tr><td class="latex"><code>definition</code></td><td class="typst"><code>example</code> / <code>problem</code></td><td>sub-number / own counter</td></tr>
+<tr><td class="latex"><code>remark</code></td><td class="typst"><code>remark claim</code></td><td>unnumbered (any environment: <code>numbering: none</code>, like <code>\newtheorem*</code>)</td></tr>
+<tr><td class="latex"><code>proof</code></td><td class="typst"><code>proof</code></td><td>unnumbered, QED at the end</td></tr>
+</table>
+
+<h2>Using environments</h2>
+<table><tr><th>LaTeX</th><th>Typst</th></tr>
+<tr><td class="latex"><code>\begin{lemma} … \end{lemma}</code></td><td class="typst"><code>#lemma[ … ]</code></td></tr>
+<tr><td class="latex"><code>\begin{theorem}[Euler] …</code></td><td class="typst"><code>#theorem[Euler][ … ]</code> (two brackets: name, then body)</td></tr>
+<tr><td class="latex"><code>\label{chev}</code></td><td class="typst"><code>#theorem[ … ] &lt;chev&gt;</code> (after the closing bracket)</td></tr>
+<tr><td class="latex"><code>\cref{chev}</code></td><td class="typst"><code>@chev</code> → "Theorem 1.2"</td></tr>
+<tr><td class="latex"><code>\begin{proof}[Proof of …]</code></td><td class="typst"><code>#proof[of @chev][ … ]</code> → "<i>Proof of Theorem 1.2.</i>"</td></tr>
+<tr><td class="latex"><code>\qedhere</code></td><td class="typst"><code>#qedhere</code> as the last thing in a display equation or list item</td></tr>
+<tr><td class="latex"><code>\tag{AM-GM}</code></td><td class="typst"><code>#tag[(AM-GM)]</code> inside an unnumbered display</td></tr>
+</table>
+<div class="callout warn"><p>One bracket is always the <em>body</em>: <code>#theorem[Euler]</code> is a theorem whose statement is "Euler".</p></div>
+
+<h2>Numbering options</h2>
+<table><tr><th>Option</th><th>Meaning</th><th>Default</th></tr>
+<tr><td class="typst"><code>base</code></td><td>what prefixes the number: <code>"heading"</code>, another counter name, or <code>none</code> (plain 1, 2, 3)</td><td><code>"heading"</code></td></tr>
+<tr><td class="typst"><code>base-level</code></td><td>how many levels of the base to keep; <code>none</code> keeps all</td><td><code>none</code></td></tr>
+<tr><td class="typst"><code>counter</code></td><td>counter name; environments with the same name share a count</td><td>the supplement</td></tr>
+<tr><td class="typst"><code>numbering</code></td><td>a numbering pattern, or <code>none</code></td><td><code>"1.1"</code></td></tr>
+<tr><td class="typst"><code>supplement</code></td><td>the word: "Theorem", "Teorema"…</td><td>per environment</td></tr>
+</table>
+
+<h2>How a number is built</h2>
+<p>The number is the pattern applied to <em>(base levels…, count)</em>. The pattern rules are in <a href="0002-styling-rules.html">reference 0002, Numbering patterns</a>.</p>
+<table><tr><th>Where</th><th>Options</th><th>Values</th><th>Prints</th></tr>
+<tr><td>3rd theorem in §2.1</td><td>defaults</td><td>(2, 1, 3)</td><td>2.1.3</td></tr>
+<tr><td>3rd theorem in §2.1</td><td><code>base-level: 1</code></td><td>(2, 3)</td><td>2.3</td></tr>
+<tr><td>3rd theorem in §2.1</td><td><code>base-level: 1, numbering: "1"</code></td><td>(2, 3)</td><td>23</td></tr>
+<tr><td>3rd theorem in §2.1</td><td><code>base-level: 1, numbering: "I.1"</code></td><td>(2, 3)</td><td>II.3</td></tr>
+<tr><td>3rd theorem, anywhere</td><td><code>base: none</code></td><td>(3)</td><td>3</td></tr>
+</table>
+<ul>
+<li>Environments sharing a counter need the same <code>base</code> and <code>base-level</code>. When the base changes between two of them, the count restarts at 1.</li>
+<li>Unnumbered headings are not counted. Without heading numbering you get Theorem 0.1, 0.2… In notes with no chapters, use <code>base: none</code>.</li>
+</ul>
+
+<footer>Part of the Typst course workspace. Lessons: <a href="../lessons/0001-three-modes.html">1</a> · <a href="../lessons/0002-set-and-show-rules.html">2</a> · <a href="../lessons/0003-math-macros.html">3</a> · <a href="../lessons/0004-theorems.html">4</a>. See also <a href="0001-latex-to-typst-cheatsheet.html">the LaTeX → Typst cheat sheet</a>.</footer>
+</main></body></html>

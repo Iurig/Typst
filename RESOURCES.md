@@ -22,6 +22,10 @@
   `let` bindings, functions, modules and `import`. Use for: macros and shared macro files.
 - [Typst Universe](https://typst.app/universe/)
   Official package and template index. Use for: theorem packages, CeTZ (TikZ replacement), slide packages, thesis templates.
+- [ctheorems (Universe)](https://typst.app/universe/package/ctheorems) and its [manual (PDF)](https://github.com/sahasatvik/typst-theorems/blob/main/manual.pdf)
+  The chosen theorem package (v2.0.0, 2026-09-17). AMS theme, shared counters, `base-level` for chapter numbering, `#qedhere`, `#tag`, restating. Use for: everything amsthm/thmtools did.
+- [typst/packages README](https://github.com/typst/packages)
+  How `@preview` packages are downloaded on demand and cached. Use for: package versioning and offline questions.
 - [tex2typst web app](https://qwinsi.github.io/tex2typst-webapp/)
   Converts LaTeX formulas to Typst math. Use for: bulk-migrating equations from the thesis; always check the output.
 - [Typst CLI `typst --help`](https://typst.app/docs/reference/) (local)
@@ -39,4 +43,4 @@
 ## Gaps
 
 - No vetted resource yet for an ABNT-style (Brazilian academic) Typst thesis template; search Universe when lesson 8 approaches.
-- Need to pick one theorem package (ctheorems vs theorion vs lemmify) after checking current maintenance status.
+- Theorem package: chose ctheorems 2.0.0 (2026-10-24) for its built-in AMS theme. theorion 0.6.0 (Apr 2026) and lemming 0.3.1 (Jul 2026) are the maintained alternatives if a boxed or multilingual look is wanted.

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 4 · Theorems and proofs</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body><main>
+<h1>Theorems and proofs</h1>
+<p class="subtitle">Lesson 4 · your amsthm setup rebuilt with a Universe package, numbered by chapter, with QED and cross-references</p>
+<div class="meta"><span>~35 minutes</span><span>Builds on <a href="0002-set-and-show-rules.html">Lesson 2</a> and <a href="0003-math-macros.html">Lesson 3</a></span><span>Reference: <a href="../reference/0004-theorems.html">Theorems &amp; proofs</a></span></div>
+
+<p>Your thesis preamble (<code>main_ppgco_ufu.tex</code>) has the usual amsthm block: <code>\newtheorem{theorem}{Theorem}[chapter]</code>, lemmas and propositions sharing that counter, corollaries numbered under their theorem, definitions on their own counter per chapter, an unnumbered remark, and <code>proof</code> with a <code>\blacksquare</code>. Typst has no theorem environment built in. You get one from a package, and the package's AMS theme reproduces that block in about ten lines. By the end you will have your Chevalley–Warning and EGZ passages numbered exactly like the thesis.</p>
+
+<h2>Loading a package</h2>
+<pre><code>#import "@preview/ctheorems:2.0.0": *
+#import thm-themes.ams: *
+#show: thm-rules</code></pre>
+<ul>
+<li><strong>Line 1.</strong> <code>@preview</code> is the <a href="https://typst.app/universe/">Typst Universe</a> namespace. An import names a namespace, a package and a version, and the version is required (<a href="https://typst.app/docs/reference/scripting/#packages">scripting reference, Packages</a>). Typst downloads the package on the first compile and caches it (under <code>~/snap/typst/current/.cache/typst/packages</code> for your snap install), so there is no <code>tlmgr</code> step and later compiles work offline (<a href="https://github.com/typst/packages">typst/packages README</a>).</li>
+<li><strong>Line 2.</strong> The package contains a module of ready-made environments in the amsthm styles. This imports <code>theorem</code>, <code>lemma</code>, <code>proposition</code>, <code>corollary</code>, <code>definition</code>, <code>example</code>, <code>remark</code>, <code>proof</code> and a few others (<a href="https://typst.app/universe/package/ctheorems">package page</a>).</li>
+<li><strong>Line 3.</strong> A "show everything" rule, as in <a href="0002-set-and-show-rules.html">Lesson 2</a>. It sets up references and QED placement for the rest of the file, so it goes before the first theorem. The default QED symbol is Typst's <code>$qed$</code>, ∎, which matches your <code>\blacksquare</code>. For amsthm's default □, write <code>thm-rules.with(qed-symbol: $square$)</code>.</li>
+</ul>
+<p class="aside">Why ctheorems: it is one of the oldest and most used theorem packages, version 2.0.0 came out on 17 September 2026, and it ships an amsthm-style theme, so your thesis look needs no styling work. The alternatives, <a href="https://typst.app/universe/package/theorion">theorion</a> (coloured boxes, multilingual) and <a href="https://typst.app/universe/package/lemming">lemming</a>, are worth a look once this one feels routine.</p>
+
+<h2>Writing environments</h2>
+<table><tr><th>LaTeX</th><th>Typst</th></tr>
+<tr><td class="latex"><code>\begin{lemma} … \end{lemma}</code></td><td class="typst"><code>#lemma[ … ]</code></td></tr>
+<tr><td class="latex"><code>\begin{theorem}[Euler] …</code></td><td class="typst"><code>#theorem[Euler][ … ]</code></td></tr>
+<tr><td class="latex"><code>\label{chev}</code></td><td class="typst"><code>#theorem[ … ] &lt;chev&gt;</code></td></tr>
+<tr><td class="latex"><code>\cref{chev}</code></td><td class="typst"><code>@chev</code> → Theorem 1.2</td></tr>
+</table>
+<p>A name is a second content block <em>before</em> the body. With one block, that block is the body: <code>#theorem[Euler]</code> is a theorem whose statement is "Euler". Labels go after the closing bracket, as you did with equations in <a href="0001-three-modes.html">Lesson 1</a>. A reference prints the word and the number by itself, as cleveref did. There is no <code>Theorem~\ref</code>.</p>
+
+<h2>Proofs</h2>
+<pre><code>#proof[
+  By @chev, $N >= 1$ and $p divides N$.
+]
+
+// QED on the equation's line, like \qedhere
+#proof[
+  $ N >= p >= 2. #qedhere $
+]
+
+// \begin{proof}[Proof of Theorem 1.2]
+#proof[of @chev][ … ]</code></pre>
+<p>The QED symbol is added at the end automatically. If the proof ends with a display equation or a list, the symbol lands on a line of its own; put <code>#qedhere</code> as the last thing inside that equation or list item.</p>
+
+<h2>Numbering: why the default is 1.1.1</h2>
+<figure><img src="img/0004-numbering.png" alt="Left, theme defaults: Definition 1.1, then in section 1.1 Theorem 1.1.1 and Corollary 1.1.1.1. Right, thesis settings: Definition 1.1, Theorem 1.1, Corollary 1.1.1."><figcaption>The same chapter with the theme's defaults (left) and your thesis settings (right). On the right, Definition 1.1 and Theorem 1.1 coexist because definitions have their own counter.</figcaption></figure>
+<p>A theorem number is a <a href="../reference/0002-styling-rules.html">numbering pattern</a> applied to a list of values: the heading counter, then the theorem count. The theme's pattern is <code>"1.1"</code>. Recall the rule from reference 0002: one counting symbol per value, and when there are more values than symbols, the last symbol is repeated with its prefix.</p>
+<p>By default the whole heading counter is used. In section 1.1 the values are (1, 1, 1), and <code>"1.1"</code> prints 1.1.1. The option <code>base-level: 1</code> keeps only the chapter, so the values become (1, 1) and you get Theorem 1.1. That is <code>[chapter]</code> in <code>\newtheorem</code>.</p>
+<p><strong>Predict first, then open.</strong> Assume <code>#set heading(numbering: "1.1")</code> and the third theorem of section 2.1.</p>
+<details><summary>Theme defaults</summary><p>Values (2, 1, 3) → <code>2.1.3</code>.</p></details>
+<details><summary><code>base-level: 1</code></summary><p>Values (2, 3) → <code>2.3</code>.</p></details>
+<details><summary><code>base-level: 1, numbering: "1"</code></summary><p>Values (2, 3), one symbol with an empty prefix, repeated → <code>23</code>. This is the heading trap from Lesson 2, back again.</p></details>
+<details><summary><code>base-level: 1, numbering: "I.1"</code></summary><p>Values (2, 3) → <code>II.3</code>.</p></details>
+<details><summary><code>base: none</code></summary><p>No prefix at all → <code>3</code>. This is the right choice for short notes without chapters. Without heading numbering you would otherwise get Theorem 0.1, because unnumbered headings are not counted.</p></details>
+
+<h3>Counters: shared, separate, nested</h3>
+<p>In the theme, <code>theorem</code>, <code>lemma</code>, <code>proposition</code> and <code>definition</code> all use one counter named <code>"Theorem"</code>, which is <code>\newtheorem{lemma}[theorem]{Lemma}</code>. Your thesis matches that for lemmas and propositions, but not for definitions. Three things to set:</p>
+<ul>
+<li><strong>Every environment on a shared counter needs the same <code>base-level</code>.</strong> When the prefix changes between two of them, the count restarts at 1. Redefine each one with <code>.with</code>, which you met in Lesson 2:
+<pre><code>#let theorem = theorem.with(base-level: 1)
+#let lemma = lemma.with(base-level: 1)
+#let proposition = proposition.with(base-level: 1)</code></pre></li>
+<li><strong>A separate counter is just a different name.</strong> <code>\newtheorem{definition}{Definition}[chapter]</code> counts on its own, so give it its own counter:
+<pre><code>#let definition = definition.with(
+  counter: "Definition",
+  base-level: 1,
+)</code></pre></li>
+<li><strong>Corollaries need nothing.</strong> The theme's <code>corollary</code> is numbered under the last theorem (1.2.1), using the theorem counter as its <code>base</code>. That is exactly your <code>\newtheorem{corollary}{Corollary}[theorem]</code>.</li>
+</ul>
+
+<div class="callout"><p><strong>Review from Lesson 3: guess the English word.</strong> You reached for <code>prod</code> last time. Typst names are full words with dot modifiers, not TeX abbreviations: <code>product</code>, <code>infinity</code> (or <code>oo</code>), <code>union</code>, <code>inter</code>, <code>union.big</code>, <code>subset.eq</code>, <code>without</code>. Beware <code>inf</code>: it exists, but it is the infimum. The full table is in <a href="../reference/0003-math-and-macros.html">reference 0003</a>.</p></div>
+
+<h2>Check yourself</h2>
+<p>From memory. The last three questions revisit Lessons 2 and 3. <span class="quiz-score"></span></p>
+
+<div class="quiz"><p class="q">With the AMS theme loaded, what does <code>#theorem[Fermat]</code> render?</p><ul>
+<li><button data-correct>Theorem 1.1. <i>Fermat</i></button></li><li><button>Theorem 1.1 (Fermat).</button></li><li><button>Theorem (Fermat).</button></li><li><button>Error: missing body</button></li></ul>
+<p class="explain">One block is always the body. The name is an extra block in front: <code>#theorem[Fermat][…]</code>.</p></div>
+
+<div class="quiz"><p class="q">Heading numbering <code>"1.1"</code>, theme defaults, no <code>base-level</code>. The third theorem of section 2.1 is numbered:</p><ul>
+<li><button data-correct><code>2.1.3</code></button></li><li><button><code>2.3.1</code></button></li><li><button><code>2.3</code></button></li><li><button><code>213</code></button></li></ul>
+<p class="explain">The default base keeps all heading levels: values (2, 1, 3), and the pattern's last symbol repeats with its dot.</p></div>
+
+<div class="quiz"><p class="q">The thesis setup has <code>base-level: 1</code> on <code>theorem</code> but you forgot it on <code>lemma</code>. In section 1.1, right after Theorem 1.2, the lemma prints:</p><ul>
+<li><button data-correct>Lemma 1.1.1</button></li><li><button>Lemma 1.3</button></li><li><button>Lemma 1.2.1</button></li><li><button>Lemma 1.1.3</button></li></ul>
+<p class="explain">They share a counter, but the lemma's prefix is (1, 1) while the theorem's was (1). A changed prefix restarts the count at 1.</p></div>
+
+<div class="quiz"><p class="q">A proof ends with a display equation, and the □ sits alone on the next line. The fix:</p><ul>
+<li><button data-correct><code>#qedhere</code> at the equation's end</button></li><li><button><code>#qedhere</code> after the proof's <code>]</code></button></li><li><button><code>qed-symbol: none</code> on the proof</button></li><li><button><code>#h(1fr)</code> after the equation</button></li></ul>
+<p class="explain"><code>#qedhere</code> goes inside the last display equation or list item, and the automatic symbol is then skipped.</p></div>
+
+<div class="quiz"><p class="q"><code>#set heading(numbering: "1")</code>. How is subsection 3.2 numbered?</p><ul>
+<li><button data-correct><code>32</code></button></li><li><button><code>3.2</code></button></li><li><button><code>2</code></button></li><li><button><code>3b</code></button></li></ul>
+<p class="explain">One counting symbol with an empty prefix. With two values, it is repeated with that empty prefix.</p></div>
+
+<div class="quiz"><p class="q">Which definition makes <code>$sq(y)$</code> render y²?</p><ul>
+<li><button data-correct><code>#let sq(t) = $#t^2$</code></button></li><li><button><code>#let sq(t) = $t^2$</code></button></li><li><button><code>#let sq(t) = $"t"^2$</code></button></li><li><button><code>#let sq(t) = $(t)^2$</code></button></li></ul>
+<p class="explain">One letter is a letter. Without the hash, the body prints t² whatever you pass.</p></div>
+
+<div class="quiz"><p class="q">The Typst name for <code>\infty</code>:</p><ul>
+<li><button data-correct><code>infinity</code></button></li><li><button><code>inf</code></button></li><li><button><code>infty</code></button></li><li><button><code>infinite</code></button></li></ul>
+<p class="explain">Guess the English word. <code>inf</code> exists but is the infimum operator, and the other two are unknown names. <code>oo</code> is a shorthand for ∞.</p></div>
+
+<h2>Practice: a thesis chapter with real environments</h2>
+<p><a href="../exercises/0004/starter.typ">exercises/0004/starter.typ</a> is your own text from <code>prerequisites.tex</code> and <code>results.tex</code>, shortened: Cauchy–Davenport, Chevalley–Warning, Lucas, and the original EGZ theorem. I added two definitions, a corollary and a remark so that every line of the preamble gets used. The math is already in Typst. Each <code>// \begin{…}</code> … <code>// \end{…}</code> comment pair marks an environment for you to create, and the header lists the thesis preamble you are reproducing. Copy it to <code>attempt.typ</code> and work there.</p>
+<ol class="steps">
+<li>Add the three package lines and compile. Wrap the first definition, the Cauchy–Davenport theorem and its proof. Look at the numbers before you change any options.</li>
+<li>Wrap the remaining environments, with names and labels. Then compare against the target in the header: Definition 1.1, Theorem 1.1, Theorem 1.2, Corollary 1.2.1, Theorem 1.3, Definition 2.1, Theorem 2.1.</li>
+<li>Fix the numbering with <code>base-level</code>. Then give definitions their own counter. Leave the corollary alone and check that it is already right.</li>
+<li>Two proofs end with a display or a list. Move their QED boxes up with <code>#qedhere</code>.</li>
+<li>Replace every hard-coded "Theorem 1.1", "Corollary 1.2.1" and so on with a reference (your thesis wrote bare <code>\ref{lucas}</code> in places; <code>@lucas</code> always includes the word). Then insert a dummy <code>#lemma[x]</code> at the top of the chapter and watch every number and reference update. Delete it afterwards.</li>
+</ol>
+<details><summary>Show the rendered solution</summary>
+<figure><img src="../exercises/0004/solution.png" alt="Rendered solution of exercise 0004: chapter 1 with Definition 1.1, Theorem 1.1 (Cauchy–Davenport Lemma), Theorem 1.2 (Chevalley–Warning), Corollary 1.2.1, Theorem 1.3 (Lucas), a remark; chapter 2 with Definition 2.1 and Theorem 2.1 (Erdős–Ginzburg–Ziv); proofs end with black squares"><figcaption>Source: <a href="../exercises/0004/solution.typ">solution.typ</a>.</figcaption></figure>
+</details>
+
+<h2>Read next</h2>
+<p>Primary source: the <a href="https://github.com/sahasatvik/typst-theorems/blob/main/manual.pdf"><strong>ctheorems manual</strong></a> (PDF, linked from the <a href="https://typst.app/universe/package/ctheorems">Universe page</a>). Read the sections on counters and on restating; restating is how you would repeat a theorem's statement in an introduction, as <code>thm-restate</code> in thmtools did. Reading it also covers a mission goal: using a package from its own docs. When you open <code>themes/ams.typ</code> in the package, you will see that the whole theme is <code>.with</code> calls like the ones you just wrote.</p>
+
+<div class="callout"><p><strong>Ask your teacher.</strong> If something is unclear, or you want a Portuguese supplement ("Teorema", "Demonstração") or a different look, ask in the chat. Run <code>/teach me Typst</code> to continue to Lesson 5: figures, tables and cross-references.</p></div>
+
+<nav class="course"><a href="0003-math-macros.html">← Lesson 3</a><a href="../reference/0004-theorems.html">Theorems reference →</a></nav>
+</main><script src="../assets/quiz.js"></script></body></html>

@@ -37,6 +37,15 @@
 <tr><td class="latex"><code>\prod</code>, <code>\sum</code>, <code>\int</code></td><td class="typst"><code>product</code>, <code>sum</code>, <code>integral</code> (<code>Pi</code> is the letter)</td></tr>
 <tr><td>predefined operators</td><td class="typst"><code>arccos arcsin arctan arg cos cosh cot coth csc csch ctg deg det dim exp gcd lcm hom id im inf ker lg lim liminf limsup ln log max min mod Pr sec sech sin sinc sinh sup tan tanh tg tr</code></td></tr>
 </table>
+<h2>Guess the English word, not the TeX command</h2>
+<p>Typst symbol names are full English words with dot modifiers, not TeX abbreviations (<a href="https://typst.app/docs/reference/symbols/sym/">symbol list</a>). When you don't know a name, guess the word first.</p>
+<table><tr><th>TeX</th><th>Typst</th><th>Trap</th></tr>
+<tr><td class="latex"><code>\prod</code></td><td class="typst"><code>product</code></td><td><code>prod</code> is unknown</td></tr>
+<tr><td class="latex"><code>\infty</code></td><td class="typst"><code>infinity</code> or <code>oo</code></td><td><code>inf</code> is the infimum operator</td></tr>
+<tr><td class="latex"><code>\cup</code>, <code>\cap</code>, <code>\bigcup</code></td><td class="typst"><code>union</code>, <code>inter</code>, <code>union.big</code></td><td>big versions are a <code>.big</code> modifier</td></tr>
+<tr><td class="latex"><code>\subseteq</code>, <code>\setminus</code></td><td class="typst"><code>subset.eq</code>, <code>without</code></td><td>modifiers, not suffixes</td></tr>
+<tr><td class="latex"><code>\emptyset</code></td><td class="typst"><code>emptyset</code> or <code>nothing</code></td><td></td></tr>
+</table>
 <p class="aside">Name clash: Typst's <code>Re</code> / <code>Im</code> are ℜ / ℑ. For the upright operators, define <code>#let Re = math.op("Re")</code>, which shadows the built-in from that line on.</p>
 
 <h2>Sharing macros between files</h2>
@@ -47,5 +56,5 @@
 </table>
 <p>Relative paths resolve from the importing file. Without <code>--root</code>, the root is the compiled file's folder, and <code>"../x.typ"</code> fails with <code>path would escape the project root</code>.</p>
 
-<footer>Part of the Typst course workspace. Lessons: <a href="../lessons/0001-three-modes.html">1</a> · <a href="../lessons/0002-set-and-show-rules.html">2</a> · <a href="../lessons/0003-math-macros.html">3</a>. See also <a href="0001-latex-to-typst-cheatsheet.html">the LaTeX → Typst cheat sheet</a> and <a href="0002-styling-rules.html">set &amp; show rules</a>.</footer>
+<footer>Part of the Typst course workspace. Lessons: <a href="../lessons/0001-three-modes.html">1</a> · <a href="../lessons/0002-set-and-show-rules.html">2</a> · <a href="../lessons/0003-math-macros.html">3</a> · <a href="../lessons/0004-theorems.html">4</a>. See also <a href="0001-latex-to-typst-cheatsheet.html">the LaTeX → Typst cheat sheet</a> and <a href="0002-styling-rules.html">set &amp; show rules</a>.</footer>
 </main></body></html>
