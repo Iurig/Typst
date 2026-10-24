@@ -25,7 +25,8 @@ a:hover { border-bottom-width: 2px; }
 p, li { max-width: 40rem; }
 code, pre, kbd { font-family: "JetBrains Mono", "Fira Code", Menlo, Consolas, monospace; font-size: .88em; }
 code { background: var(--code-bg); padding: .1em .3em; border-radius: 3px; }
-pre { background: var(--code-bg); padding: .9rem 1rem; border-radius: 6px; overflow-x: auto; line-height: 1.45; }
+pre { background: var(--code-bg); padding: .9rem 1rem; border-radius: 6px; line-height: 1.45;
+  white-space: pre-wrap; overflow-wrap: anywhere; }   /* wrap, never scroll sideways */
 pre code { background: none; padding: 0; }
 kbd { border: 1px solid var(--rule); border-bottom-width: 2px; padding: 0 .35em; border-radius: 3px; background: var(--bg); }
 blockquote { margin: 1.2rem 0; padding: .2rem 0 .2rem 1rem; border-left: 3px solid var(--accent); color: var(--fg); }
@@ -34,13 +35,14 @@ blockquote { margin: 1.2rem 0; padding: .2rem 0 .2rem 1rem; border-left: 3px sol
 .callout.warn { border-left-color: var(--latex); background: color-mix(in srgb, var(--latex) 8%, transparent); }
 .callout > :first-child { margin-top: 0; } .callout > :last-child { margin-bottom: 0; }
 table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: .95rem; }
+td code { white-space: normal; overflow-wrap: anywhere; }
 th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
 th { font-weight: 600; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
 td.latex code { color: var(--latex); } td.typst code { color: var(--typst-ink); }
-.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.2rem 0; }
+.compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1rem; margin: 1.2rem 0; }  /* stacks when narrow */
 .compare > div { min-width: 0; } .compare h4 { margin: 0 0 .4rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
 .compare pre { margin: 0; }
-@media (max-width: 640px) { .compare { grid-template-columns: 1fr; } html { font-size: 16px; } }
+@media (max-width: 640px) { html { font-size: 16px; } }
 figure { margin: 1.5rem 0; } figure img { max-width: 100%; border: 1px solid var(--rule); border-radius: 4px; background: #fff; }
 figcaption { font-size: .85rem; color: var(--muted); margin-top: .4rem; }
 details { margin: 1rem 0; } summary { cursor: pointer; color: var(--accent-ink); }

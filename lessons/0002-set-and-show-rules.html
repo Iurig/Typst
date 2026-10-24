@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lesson 2 · Set and show rules</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body><main>
+<h1>Set and show rules</h1>
+<p class="subtitle">Lesson 2 · the preamble you never have to copy again, and the LaTeX look in eight lines</p>
+<div class="meta"><span>~30 minutes</span><span>Builds on <a href="0001-three-modes.html">Lesson 1</a></span><span>Reference: <a href="../reference/0002-styling-rules.html">Set &amp; show rules</a></span></div>
+
+<p>In Lesson 1 you wrote <code>#set math.equation(numbering: "1.")</code> in the middle of your file and it worked. This lesson explains why, where it would <em>not</em> have worked, and how the same mechanism replaces most of the thesis preamble: <code>lmodern</code>, <code>indentfirst</code>, <code>setspace</code>, <code>geometry</code>, chapter page breaks. At the end your Lesson 1 translation will be indistinguishable from LaTeX output.</p>
+
+<h2>Set rules are default arguments</h2>
+<p>Every element in Typst is a function: <code>text</code>, <code>par</code>, <code>page</code>, <code>heading</code>, <code>list</code>. Calling one directly styles one thing: <code>#text(red)[warning]</code>. A <strong>set rule</strong> changes the function's defaults for everything that follows (<a href="https://typst.app/docs/reference/styling/#set-rules">styling reference</a>):</p>
+<pre><code>// every text from here on
+#set text(font: "New Computer Modern")
+// every heading from here on
+#set heading(numbering: "1.1")</code></pre>
+<p>Only optional parameters can be set, which is why you never write <code>#set heading[Title]</code>. The LaTeX guide's phrase is the one to remember: set rules "can be thought of as default argument values" (<a href="https://typst.app/docs/guides/guide-for-latex-users/#commands">guide</a>).</p>
+
+<h2>Scope: from here to the end of the block</h2>
+<p>A rule applies from the line it is written on to the end of the <em>enclosing block</em>. At the top level, that is the end of the file. Inside <code>[…]</code> or <code>{…}</code>, it ends with the bracket. Two consequences:</p>
+<ul>
+<li><strong>Rules don't reach backwards.</strong> Your Lesson 1 set rule came after the first heading, so if it had been <code>#set heading(numbering: "1.1")</code>, that heading would have stayed unnumbered. Typst has no preamble; the top of the file is the preamble.</li>
+<li><strong>Brackets are a scoping tool.</strong> Want dashes for one list only? Wrap the rule and the list together: </li>
+</ul>
+<pre><code>#[
+  #set list(marker: [--])
+  - dashed
+]
+- bulleted again</code></pre>
+<p class="aside">The <code>#[ … ]</code> is a content block entered from markup via a hash. You met the same brackets in Lesson 1 as the argument of <code>#strong[…]</code>.</p>
+
+<h2>Show rules are hooks on elements</h2>
+<p>When arguments are not enough, a <strong>show rule</strong> intercepts every element matching a selector. It comes in three flavours (<a href="https://typst.app/docs/reference/styling/#show-rules">styling reference</a>):</p>
+<div class="compare">
+<div><h4>show-set: a set rule, but only inside headings</h4><pre><code>#show heading: set block(above: 1.4em, below: 1em)
+#show raw: set text(font: "New Computer Modern Mono")</code></pre></div>
+<div><h4>show + function: rebuild the element; <code>it</code> is the element</h4><pre><code>#show heading.where(level: 1): it => {
+  // chapters start on a new page
+  pagebreak(weak: true)
+  // then the heading itself
+  it
+}</code></pre></div>
+</div>
+<pre><code>// show everything: the \documentclass of Typst
+#show: conf.with(title: [Higher-degree EGZ])</code></pre>
+<p>Selectors can be an element (<code>heading</code>), an element with fields (<code>heading.where(level: 1)</code>), a string (<code>show "Erdős": smallcaps</code>), a regex, or a label. The function form is the <code>\renewcommand</code> replacement: inside, <code>it</code> has fields named after the element's parameters, such as <code>it.body</code> and <code>it.level</code>.</p>
+<div class="callout warn"><p><strong>One gotcha from the docs:</strong> a <code>set</code> inside a show function cannot be overridden by a later show-set rule. Keep styling in show-set rules where you can, and reserve the function form for structural changes like the page break.</p></div>
+
+<h2>The LaTeX look</h2>
+<p>The official guide gives the recipe (<a href="https://typst.app/docs/guides/guide-for-latex-users/#latex-look">"How do I get the LaTeX look?"</a>). Read it as four set rules and three show-set rules, nothing more:</p>
+<pre><code>#set page(paper: "a4", margin: 1.75in)
+#set text(font: "New Computer Modern", size: 11pt)
+#set par(justify: true, leading: 0.55em, spacing: 0.55em,
+         first-line-indent: (amount: 1.8em, all: true))
+#show raw: set text(font: "New Computer Modern Mono")
+#show math.equation: set text(weight: "regular")
+#show heading: set block(above: 1.4em, below: 1em)</code></pre>
+<ul>
+<li><code>leading</code> is the space between lines, <code>spacing</code> between paragraphs. Equal values give the LaTeX <code>\parskip=0</code> feel.</li>
+<li><code>first-line-indent: 1.8em</code> alone behaves like plain LaTeX: the first paragraph after a heading is <em>not</em> indented. Your thesis loaded <code>indentfirst</code>; the dictionary form with <code>all: true</code> is that package.</li>
+<li>Typst embeds New Computer Modern and its Math font. The Mono variant was missing on your machine; it is now installed in <code>~/.local/share/fonts</code>, copied from your TeX Live tree.</li>
+</ul>
+
+<h2>Check yourself</h2>
+<p>From memory. <span class="quiz-score"></span></p>
+
+<div class="quiz"><p class="q">A <code>#set heading(numbering: "1.1")</code> written after the first heading. Is that heading numbered?</p><ul>
+<li><button data-correct>No, never backwards</button></li><li><button>Yes, whole file</button></li><li><button>Only if labelled</button></li><li><button>Only at top-level</button></li></ul>
+<p class="explain">Rules apply from where they are written to the end of the enclosing block. Earlier content is untouched.</p></div>
+
+<div class="quiz"><p class="q"><code>#show heading: set text(navy)</code> is which kind of rule?</p><ul>
+<li><button data-correct>Show-set rule</button></li><li><button>Set-if rule</button></li><li><button>Show-all rule</button></li><li><button>Set-show rule</button></li></ul>
+<p class="explain">A set rule applied only inside the selected elements. The most composable form; prefer it over a function when it suffices.</p></div>
+
+<div class="quiz"><p class="q">How do you make a set rule affect one list and nothing after it?</p><ul>
+<li><button data-correct>Wrap both in brackets</button></li><li><button>Add a where selector</button></li><li><button>Use a show rule</button></li><li><button>End with unset rule</button></li></ul>
+<p class="explain">A content block <code>#[ … ]</code> ends the rule's scope. There is no "unset".</p></div>
+
+<div class="quiz"><p class="q">In <code>#show heading: it =&gt; …</code>, what is <code>it</code>?</p><ul>
+<li><button data-correct>The heading element</button></li><li><button>The heading text</button></li><li><button>The heading number</button></li><li><button>The heading level</button></li></ul>
+<p class="explain">The whole element. Its fields are <code>it.body</code>, <code>it.level</code>, <code>it.numbering</code>. Returning <code>it</code> keeps it unchanged.</p></div>
+
+<div class="quiz"><p class="q">What replaces <code>\documentclass{article}</code>?</p><ul>
+<li><button data-correct>A show-everything rule</button></li><li><button>A set page rule</button></li><li><button>A let binding</button></li><li><button>An include statement</button></li></ul>
+<p class="explain"><code>#show: conf.with(…)</code> passes the rest of the document through the template function. Lesson 7 builds one.</p></div>
+
+<div class="quiz"><p class="q">With <code>first-line-indent: 1.8em</code> alone, which paragraph is not indented?</p><ul>
+<li><button data-correct>First paragraph after heading</button></li><li><button>Every paragraph after heading</button></li><li><button>Last paragraph before heading</button></li><li><button>Every paragraph containing math</button></li></ul>
+<p class="explain">Same convention as plain LaTeX. <code>(amount: 1.8em, all: true)</code> is the <code>indentfirst</code> equivalent.</p></div>
+
+<h2>Practice: the LaTeX look on your own text</h2>
+<p><a href="../exercises/0002/starter.typ">exercises/0002/starter.typ</a> is your Lesson 1 translation with no styling. Add rules until it matches the solution. The task list is in the file's header comment.</p>
+<ol class="steps">
+<li>Start the watcher or Tinymist preview. The file fails with an error you met in Lesson 1. Fix it with one set rule, then look at the result: Libertinus, ragged right, no heading numbers.</li>
+<li>Add the LaTeX-look block at the top. Then add heading and equation numbering. Watch each save.</li>
+<li>Write a show rule with a function so each level-1 heading starts on a new page. Use <code>pagebreak(weak: true)</code> so the very first heading does not leave page one blank.</li>
+<li>Scope a <code>list(marker: [--])</code> rule to the proof's list only. The list after the proof must keep its bullet.</li>
+<li>Deliberately move one set rule below the first heading and observe what stops working. Then move it back.</li>
+</ol>
+<details><summary>Show the rendered solution</summary>
+<figure><img src="../exercises/0002/solution-1.png" alt="Rendered solution of exercise 0002, page 1"><img src="../exercises/0002/solution-2.png" alt="Rendered solution of exercise 0002, page 2"><figcaption>Two pages, because the chapter rule broke before "Lucas's Theorem". Source: <a href="../exercises/0002/solution.typ">solution.typ</a>.</figcaption></figure>
+</details>
+
+<h2>Read next</h2>
+<p>Primary source: the <a href="https://typst.app/docs/reference/styling/"><strong>Styling</strong> page of the official reference</a>. It is one screen long and contains every form of rule in this lesson. Afterwards, skim <a href="https://typst.app/docs/tutorial/advanced-styling/">Tutorial chapter 3, Advanced styling</a>, which applies show rules to a real paper layout.</p>
+
+<div class="callout"><p><strong>Ask your teacher.</strong> Anything unclear, or a preamble line from your thesis you want translated: ask in the chat. Run <code>/teach me Typst</code> to continue to Lesson 3, math and personal macros.</p></div>
+
+<nav class="course"><a href="0001-three-modes.html">← Lesson 1</a><a href="../reference/0002-styling-rules.html">Set &amp; show reference →</a></nav>
+</main><script src="../assets/quiz.js"></script></body></html>

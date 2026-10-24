@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Set & show rules</title><link rel="stylesheet" href="../assets/course.css"></head>
+<body><main>
+<h1>Set &amp; show rules</h1>
+<p class="subtitle">Reference 0002 · the Typst replacement for preamble packages, <code>\renewcommand</code> and <code>\setlength</code></p>
+<div class="meta"><span>Sources: <a href="https://typst.app/docs/reference/styling/">Styling reference</a>, <a href="https://typst.app/docs/guides/guide-for-latex-users/#latex-look">Guide for LaTeX users</a></span><span>Verified with Typst 0.15.1</span></div>
+
+<h2>The four forms</h2>
+<table><tr><th>Form</th><th>Syntax</th><th>Meaning</th><th>LaTeX analogue</th></tr>
+<tr><td>set</td><td class="typst"><code>#set text(font: "New Computer Modern")</code></td><td>change a function's <em>default arguments</em> from here on</td><td>package options, <code>\setlength</code></td></tr>
+<tr><td>set-if</td><td class="typst"><code>#set text(red) if draft</code></td><td>set only when a condition holds</td><td><code>\ifdraft</code></td></tr>
+<tr><td>show-set</td><td class="typst"><code>#show heading: set text(navy)</code></td><td>set, but only inside the selected elements</td><td><code>titlesec</code>-style tweaks</td></tr>
+<tr><td>show + function</td><td class="typst"><code>#show heading.where(level: 1): it =&gt; { pagebreak(weak: true); it }</code></td><td>replace each selected element with what the function returns; <code>it</code> is the element</td><td><code>\renewcommand</code>, <code>\let\old…</code></td></tr>
+<tr><td>show everything</td><td class="typst"><code>#show: template.with(title: [T])</code></td><td>pass the rest of the document through a function</td><td><code>\documentclass</code></td></tr>
+</table>
+
+<h2>Scope</h2>
+<ul>
+<li>A rule applies from the line it is written on until the <strong>end of the enclosing block</strong>: the file, a content block <code>[…]</code>, or a code block <code>{…}</code>.</li>
+<li>It never reaches backwards. A <code>#set heading(numbering: …)</code> written after a heading leaves that heading unnumbered.</li>
+<li>To scope a rule on purpose, wrap it with its content: <code>#[ #set list(marker: [--]) - a - b ]</code>.</li>
+<li>Put document-wide rules at the top of the file. Typst has no preamble; the top of the file is the preamble.</li>
+</ul>
+
+<h2>Selectors (left of the colon)</h2>
+<table><tr><th>Selector</th><th>Example</th><th>Matches</th></tr>
+<tr><td>element</td><td class="typst"><code>show heading: …</code></td><td>every heading</td></tr>
+<tr><td>element with fields</td><td class="typst"><code>show heading.where(level: 1): …</code></td><td>only level-1 headings</td></tr>
+<tr><td>string</td><td class="typst"><code>show "Erdős": smallcaps</code></td><td>that text, wherever it occurs</td></tr>
+<tr><td>regex</td><td class="typst"><code>show regex("\d+"): set text(red)</code></td><td>text by pattern</td></tr>
+<tr><td>label</td><td class="typst"><code>show &lt;intro&gt;: …</code></td><td>the labelled element</td></tr>
+<tr><td>nested element</td><td class="typst"><code>show math.equation: set text(weight: "regular")</code></td><td>functions inside modules use a dot</td></tr>
+</table>
+
+<h2>Inside a show function</h2>
+<ul>
+<li><code>it</code> is the element. Return <code>it</code> to keep it, or build something new around it.</li>
+<li>Fields match the function's parameters: <code>it.body</code>, <code>it.level</code>, <code>it.numbering</code>.</li>
+<li>A code block <code>{…}</code> joins the values it produces: <code>{ pagebreak(weak: true); it }</code> outputs both.</li>
+<li>Gotcha: a <code>set</code> inside a show function cannot be overridden by a later show-set rule. Prefer separate show-set rules when you can.</li>
+</ul>
+
+<h2>The LaTeX look (official recipe)</h2>
+<pre><code>#set page(paper: "a4", margin: 1.75in)
+#set text(font: "New Computer Modern", size: 11pt)
+// all: true is the indentfirst package
+#set par(justify: true, leading: 0.55em, spacing: 0.55em,
+         first-line-indent: (amount: 1.8em, all: true))
+#show raw: set text(font: "New Computer Modern Mono")
+#show math.equation: set text(weight: "regular")
+#show heading: set block(above: 1.4em, below: 1em)
+#set heading(numbering: "1.1")
+#set math.equation(numbering: "(1)")</code></pre>
+<p class="aside"><code>leading</code> is the gap between lines, <code>spacing</code> the gap between paragraphs. LaTeX uses the same value for both when <code>\parskip</code> is zero, hence 0.55em twice. Typst's defaults (0.65em leading, 1.2em spacing) are the "web" look.</p>
+
+<h2>Numbering patterns</h2>
+<table><tr><th>Pattern</th><th>Output</th></tr>
+<tr><td class="typst"><code>"1.1"</code></td><td>1, 1.1, 1.1.1</td></tr>
+<tr><td class="typst"><code>"1.1."</code></td><td>1., 1.1.</td></tr>
+<tr><td class="typst"><code>"(1)"</code></td><td>(1), (2)</td></tr>
+<tr><td class="typst"><code>"I."</code> / <code>"a)"</code> / <code>"①"</code></td><td>Roman, letter, circled</td></tr>
+</table>
+<footer>Part of the Typst course workspace. Lessons: <a href="../lessons/0001-three-modes.html">1</a> · <a href="../lessons/0002-set-and-show-rules.html">2</a>. See also <a href="0001-latex-to-typst-cheatsheet.html">the LaTeX → Typst cheat sheet</a>.</footer>
+</main></body></html>
